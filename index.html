@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SM</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&family=Syne:wght@700;800&family=Space+Mono&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        heading: ['Playfair Display', 'serif'],
+                        mono: ['Space Mono', 'monospace'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                    colors: {
+                        dark: '#0a0a0a',
+                        accent: '#8b0000',
+                        secondary: '#581c1c',
+                        beige: '#ff4d4d',
+                        glass: 'rgba(255, 255, 255, 0.05)',
+                    },
+                    borderRadius: {
+                        '4xl': '2.5rem',
+                        '5xl': '3.5rem',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* ── PROTECTION LAYER ── */
+        * {
+            -webkit-user-select: none !important;
+            -moz-user-select: none !important;
+            -ms-user-select: none !important;
+            user-select: none !important;
+            -webkit-touch-callout: none !important;
+            -webkit-tap-highlight-color: transparent !important;
+        }
+        img, video {
+            pointer-events: none !important;
+            -webkit-user-drag: none !important;
+            -khtml-user-drag: none !important;
+            -moz-user-drag: none !important;
+            -o-user-drag: none !important;
+            user-drag: none !important;
+        }
+        /* Overlay on every image to block right-click save */
+        img::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            z-index: 10;
+        }
+        /* ── GLOBAL RESET ── */
+        html, body {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            margin: 0;
+            padding: 0;
+            overscroll-behavior: none;
+        }
+        html::-webkit-scrollbar, body::-webkit-scrollbar { display: none; }
+        :root {
+            --bg-light: #ffffff;
+            --bg-dark: #000000;
+            --accent: #8b0000;
+        }
+        body {
+            background-color: var(--bg-light);
+            color: #1a1a1a;
+            transition: background-color 0.8s cubic-bezier(0.16, 1, 0.3, 1), color 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+            cursor: none !important;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+        .dark body { background-color: var(--bg-dark) !important; color: #ffffff; }
+        /* Force custom cursor on absolutely everything */
+        *, *::before, *::after,
+        a, button, input, select, textarea, [role="button"],
+        html, body, div, span, p, h1, h2, h3, h4, h5, h6,
+        img, video, section, main, nav, footer, article {
+            cursor: none !important;
+        }
+
+        /* ── GLASS ── */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(40px);
+            -webkit-backdrop-filter: blur(40px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.8s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.05), 0 0 20px rgba(139,0,0,0.05);
+        }
+        .dark .glass-panel { box-shadow: none; background: rgba(255,255,255,0.01); }
+        .backlit-box { position: relative; }
+        .backlit-box::after {
+            content: '';
+            position: absolute;
+            inset: -1px;
+            background: linear-gradient(135deg, rgba(139,0,0,0.2), transparent 40%, rgba(139,0,0,0.1));
+            z-index: -1;
+            filter: blur(15px);
+            border-radius: inherit;
+            opacity: 0;
+            transition: opacity 0.8s ease;
+        }
+        html:not(.dark) .backlit-box::after { opacity: 1; }
+
+        .section-entrance {
+            opacity: 0;
+            transform: translateY(40px) scale(0.98);
+            transition: opacity 1.2s cubic-bezier(0.16, 1, 0.3, 1), transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .section-entrance.active { opacity: 1; transform: translateY(0) scale(1); }
+
+        @media (max-width: 768px) {
+            .hero-title { font-size: clamp(3rem, 15vw, 6rem) !important; }
+            .nav-menu { display: none; }
+            .glass-panel { padding: 1.5rem !important; border-radius: 2rem !important; }
+            .mobile-stack { flex-direction: column !important; }
+        }
+
+        .glass-pill {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .dark .glass-pill { background: rgba(255,255,255,0.06); }
+
+        .text-outline { -webkit-text-stroke: 1px rgba(0,0,0,0.2); color: transparent; }
+        .dark .text-outline { -webkit-text-stroke: 1px rgba(255,255,255,0.2); }
+
+        .reveal-up {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+            will-change: transform, opacity;
+        }
+        .reveal-up.active { opacity: 1; transform: translateY(0); }
+
+        .circle-reveal {
+            clip-path: circle(0% at 50% 50%);
+            transition: clip-path 2.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .circle-reveal.active { clip-path: circle(100% at 50% 50%); }
+
+        .glow-blob {
+            filter: blur(160px);
+            opacity: 0.15;
+            animation: float 25s ease-in-out infinite;
+            will-change: transform;
+        }
+        .dark .glow-blob { display: none; }
+        @keyframes float {
+            0%, 100% { transform: translate(0,0) scale(1); }
+            33% { transform: translate(5%,10%) scale(1.1); }
+            66% { transform: translate(-3%,-5%) scale(0.9); }
+        }
+
+        /* ── CURSORS ── */
+        .custom-cursor {
+            width: 8px;
+            height: 8px;
+            background: var(--accent);
+            border-radius: 50%;
+            position: fixed;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            z-index: 10000;
+            transition: transform 0.1s ease-out;
+            mix-blend-mode: difference;
+        }
+        .custom-cursor-follower {
+            width: 32px;
+            height: 32px;
+            border: 1px solid var(--accent);
+            border-radius: 50%;
+            position: fixed;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            z-index: 9999;
+            transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        @media (hover: none) and (pointer: coarse) {
+            .custom-cursor, .custom-cursor-follower { display: none !important; }
+        }
+
+        @keyframes rotate-disk {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .rotating-disk { animation: rotate-disk 15s linear infinite; }
+
+        .neon-hover { transition: border-color 0.6s ease, box-shadow 0.6s ease; }
+        .neon-hover:hover {
+            border-color: rgba(139,0,0,0.8) !important;
+            box-shadow: 0 0 15px rgba(139,0,0,0.3), inset 0 0 10px rgba(139,0,0,0.2) !important;
+        }
+
+        /* ── PROTECTION TOAST ── */
+        #protect-toast {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            background: rgba(139,0,0,0.9);
+            color: white;
+            font-size: 9px;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            padding: 10px 24px;
+            border-radius: 999px;
+            z-index: 99999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            font-family: 'Space Mono', monospace;
+        }
+        #protect-toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+    </style>
+</head>
+<body class="font-sans selection:bg-accent selection:text-dark">
+
+    <!-- Protection Toast -->
+    <div id="protect-toast">Content is protected</div>
+
+    <!-- Background Layers -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none -z-10">
+        <div class="glow-blob absolute top-[-20%] left-[-10%] w-[60vw] h-[60vw] bg-accent rounded-full"></div>
+        <div class="glow-blob absolute bottom-[-20%] right-[-10%] w-[70vw] h-[70vw] bg-secondary rounded-full" style="animation-delay:-5s"></div>
+        <div class="glow-blob absolute top-[20%] right-[20%] w-[40vw] h-[40vw] bg-beige rounded-full" style="animation-delay:-10s"></div>
+    </div>
+    <div class="custom-cursor" id="cursor"></div>
+    <div class="custom-cursor-follower" id="follower"></div>
+
+    <!-- Navigation -->
+    <div id="main-nav" class="fixed top-8 left-1/2 -translate-x-1/2 z-[100] w-full max-w-3xl px-6">
+        <nav class="glass-pill rounded-full px-8 py-4 flex justify-between items-center text-[10px] uppercase tracking-[0.2em] font-medium">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-full border dark:border-white/20 border-black/20 flex items-center justify-center overflow-hidden">
+                    <img src="web3i3.webp" alt="Logo" class="w-full h-full object-cover">
+                </div>
+            </div>
+            <div class="flex gap-8">
+                <a href="#moonish" class="hover:text-accent transition-colors italic">HOME</a>
+                <a href="#collection" class="hover:text-accent transition-colors italic">STORY</a>
+                <a href="#drops" class="hover:text-accent transition-colors italic">LEGACY</a>
+                <a href="#about" class="hover:text-accent transition-colors italic">WEB INFO</a>
+            </div>
+            <div class="flex items-center gap-4">
+                <div class="w-[1px] h-4 bg-current opacity-10"></div>
+                <button id="mode-toggle" class="p-2 hover:text-accent transition-colors" title="Toggle Mode">
+                    <svg id="sun-icon" class="w-4 h-4 hidden" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                    <svg id="moon-icon" class="w-4 h-4 hidden" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                    <svg id="system-icon" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                </button>
+            </div>
+        </nav>
+    </div>
+
+    <main class="relative">
+        <!-- Hero Section -->
+        <section id="moonish" class="min-h-screen pt-32 pb-12 px-6 flex flex-col items-center dark:bg-black bg-white section-entrance">
+            <div class="w-full max-w-7xl glass-panel backlit-box neon-hover rounded-[3.5rem] p-6 md:p-12 relative overflow-hidden flex flex-col gap-12">
+                <div class="flex flex-col md:flex-row justify-between items-start gap-12 relative z-10">
+                    <div class="flex flex-col gap-12">
+                        <div class="text-[4rem] md:text-[12rem] font-serif leading-none tracking-tighter uppercase italic dark:text-white text-black hero-title">SIDHU MOOSEWALA</div>
+                        <div class="max-w-xs space-y-4">
+                            <div class="text-[10px] uppercase tracking-widest font-bold text-accent italic">A Voice.<br>A Revolution.</div>
+                            <div class="text-[10px] uppercase tracking-widest font-bold text-secondary italic">A Legacy.</div>
+                            <div class="text-[10px] uppercase tracking-[0.2em] leading-relaxed dark:opacity-40 opacity-60 italic dark:text-white text-black">
+                                LEGACY LIVES ON<br>STILL ROLLIN<br>5911 FOREVER<br>REAL ONE
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex flex-col items-end gap-12">
+                        <div class="text-[10px] uppercase tracking-widest text-right dark:opacity-40 opacity-60 leading-relaxed italic dark:text-white text-black">
+                            295 /<br>So High /<br>Same Beef /<br>The Last Ride /<br>Levels /<br>Just Listen
+                        </div>
+                    </div>
+                </div>
+
+                <div class="relative w-full aspect-[21/9] rounded-5xl overflow-hidden group">
+                    <video id="hero-video" autoplay loop muted playsinline class="w-full h-full object-cover grayscale opacity-60 transition-transform duration-1000 group-hover:scale-105">
+                        <source src="vid2.mp4" type="video/mp4">
+                    </video>
+                    <!-- Video overlay to block right-click -->
+                    <div class="absolute inset-0 z-10 pointer-events-none"></div>
+
+                    <button id="video-mute-toggle" class="absolute bottom-8 left-8 z-30 glass-pill p-1.5 rounded-full hover:scale-110 transition-all border-white/10">
+                        <svg id="mute-icon" class="w-3 h-3 text-accent hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M11 5L6 9H2v6h4l5 4V5zM19.07 4.93a10 10 0 010 14.14M15.54 8.46a5 10 0 010 7.07"/>
+                        </svg>
+                        <svg id="unmute-icon" class="w-3 h-3 text-accent" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M11 5L6 9H2v6h4l5 4V5zM23 9l-6 6M17 9l6 6"/>
+                        </svg>
+                    </button>
+
+                    <div class="absolute inset-0 flex items-center justify-center z-20">
+                        <div class="relative flex items-center justify-center reveal-up active">
+                            <div class="absolute text-[25vw] font-bold text-accent/30 tracking-tighter pointer-events-none z-0">GOAT</div>
+                            <div class="w-[250px] h-[250px] rounded-full border border-white/20 backdrop-blur-md bg-white/5 shadow-2xl overflow-hidden neon-hover relative z-10">
+                                <img src="web3.png" alt="Focus" class="w-full h-full object-cover drop-shadow-2xl relative z-10 rotating-disk" loading="lazy">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="absolute bottom-12 right-12 glass-pill px-6 py-3 rounded-full flex items-center gap-4 border-white/10 shadow-2xl z-20">
+                        <div class="w-2 h-2 bg-accent rounded-full animate-pulse"></div>
+                        <div class="text-[10px] font-bold uppercase tracking-[0.2em] text-accent">NOW PLAYING</div>
+                    </div>
+                </div>
+
+                <div class="w-full mt-8 flex gap-8 reveal-up">
+                    <div class="glass-panel backlit-box flex-1 rounded-full p-6 flex items-center justify-between px-12 group hover:scale-[1.01] transition-all neon-hover border-accent/10">
+                        <div class="flex items-center gap-8">
+                            <div class="w-16 h-16 rounded-full overflow-hidden border border-accent/20">
+                                <img src="web3i1.jpg" alt="Thumb" class="w-full h-full object-cover" loading="lazy">
+                            </div>
+                            <div class="text-3xl font-heading tracking-tighter uppercase group-hover:text-accent transition-colors dark:text-white text-black">MOOSEWALA</div>
+                        </div>
+                        <div class="flex gap-16 text-[8px] uppercase tracking-[0.3em] font-bold dark:opacity-40 opacity-60 group-hover:opacity-100 transition-opacity dark:text-white text-black">
+                            <div class="text-accent">LEGACY</div>
+                            <div class="text-secondary">FOREVER</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="collection" class="min-h-screen relative flex flex-col md:flex-row items-center justify-between overflow-hidden dark:bg-black bg-white px-6 md:px-24 py-24 section-entrance">
+            <div class="relative z-20 flex flex-col md:flex-row gap-12 md:gap-24 items-start w-full md:w-2/3 mobile-stack">
+                <div class="flex flex-col gap-8 reveal-up">
+                    <div class="text-[10px] uppercase tracking-[0.4em] font-bold text-accent italic">01 — VOICE</div>
+                    <h3 class="text-5xl font-serif italic tracking-tighter uppercase dark:text-white text-black">A VOICE THAT<br>ECHOES.</h3>
+                    <p class="text-[8px] uppercase tracking-widest leading-loose dark:opacity-40 opacity-60 max-w-[180px] italic dark:text-white text-black">
+                        His words weren't just lyrics —<br>they were truth.
+                    </p>
+                </div>
+                <div class="flex flex-col gap-8 reveal-up" style="transition-delay:0.2s">
+                    <div class="text-[10px] uppercase tracking-[0.4em] font-bold text-accent italic">02 — REALITY</div>
+                    <h3 class="text-5xl font-serif italic tracking-tighter uppercase dark:text-white text-black">REAL RECOGNIZES<br>REAL.</h3>
+                    <p class="text-[8px] uppercase tracking-widest leading-loose dark:opacity-40 opacity-60 max-w-[180px] italic dark:text-white text-black">
+                        No filters. No fake life.<br>Just reality through music.
+                    </p>
+                </div>
+                <div class="flex flex-col gap-8 reveal-up" style="transition-delay:0.4s">
+                    <div class="text-[10px] uppercase tracking-[0.4em] font-bold text-accent italic">03 — LEGACY</div>
+                    <h3 class="text-5xl font-serif italic tracking-tighter uppercase dark:text-white text-black">A LEGACY THAT<br>STAYS.</h3>
+                    <p class="text-[8px] uppercase tracking-widest leading-loose dark:opacity-40 opacity-60 max-w-[180px] italic dark:text-white text-black">
+                        Time fades everything —<br>but not a real voice.
+                    </p>
+                </div>
+            </div>
+
+            <div class="relative z-20 flex flex-col items-center justify-center w-full md:w-1/3 mt-12 md:mt-0">
+                <div class="relative group glass-panel p-2 rounded-2xl overflow-hidden">
+                    <img src="web3i2.jpg" alt="Ghost Visual" class="w-full aspect-[3/4] object-cover grayscale opacity-80 group-hover:scale-105 transition-transform duration-1000">
+                    <div class="absolute inset-0 dark:bg-black/20 bg-white/20 group-hover:bg-transparent transition-colors"></div>
+                    <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-4 text-center">
+                        <div class="text-4xl font-heading tracking-tighter">SIDHU MOOSEWALA</div>
+                        <div class="w-12 h-[1px] bg-accent"></div>
+                        <div class="text-[8px] uppercase tracking-[0.3em] font-bold opacity-40">The Last Ride</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="drops" class="min-h-screen relative flex items-center justify-center dark:bg-black bg-white overflow-hidden section-entrance">
+            <div class="absolute inset-0 z-0">
+                <img src="bgweb3.webp" alt="Editorial Visual" class="w-full h-full object-cover grayscale opacity-40">
+                <div class="absolute inset-0" style="background: linear-gradient(to right, transparent 0%, transparent 25%, var(--bg-mode-color) 60%, var(--bg-mode-color) 100%);"></div>
+            </div>
+            <div class="w-full max-w-7xl flex flex-col md:flex-row items-center justify-end px-6 md:px-24 mobile-stack relative z-10">
+                <div class="w-full md:w-1/2 flex flex-col items-start md:items-end gap-6 text-left md:text-right reveal-up" style="transition-delay:0.3s">
+                    <h2 class="text-7xl md:text-[10vw] font-serif leading-none tracking-tighter uppercase dark:text-white text-black">THE STORY CONTINUES</h2>
+                    <div class="text-xl md:text-3xl font-serif italic tracking-widest text-accent">
+                        Even after silence, his voice speaks
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="about" class="min-h-screen py-24 px-6 flex flex-col items-center justify-center relative overflow-hidden dark:bg-black bg-white section-entrance">
+            <div class="relative z-10 w-full max-w-7xl flex flex-col items-center gap-24">
+                <div class="flex flex-wrap justify-center items-end gap-16 md:gap-32 reveal-up">
+                    <div class="flex flex-col items-center gap-4">
+                        <div class="w-10 h-10 rounded-full border dark:border-white/20 border-black/20 flex items-center justify-center">
+                            <span class="text-[10px] font-bold tracking-tighter dark:text-white text-black">( )</span>
+                        </div>
+                        <div class="text-[8px] uppercase tracking-[0.4em] dark:opacity-40 opacity-60 dark:text-white text-black whitespace-nowrap">a31</div>
+                    </div>
+                    <div class="flex flex-col items-center gap-4">
+                        <div class="flex flex-col items-center -space-y-1 dark:text-white text-black">
+                            <span class="text-[10px] font-bold">N</span>
+                            <span class="text-[10px] font-bold">U A</span>
+                        </div>
+                        <div class="text-[8px] uppercase tracking-[0.4em] dark:opacity-40 opacity-60 dark:text-white text-black whitespace-nowrap">a32</div>
+                    </div>
+                    <div class="flex flex-col items-center gap-4">
+                        <div class="w-14 h-7 rounded-full border dark:border-white/20 border-black/20 flex items-center justify-center gap-2 px-4">
+                            <div class="w-1.5 h-1.5 rounded-full dark:bg-white/40 bg-black/40"></div>
+                            <div class="w-1.5 h-1.5 rounded-full dark:bg-white/40 bg-black/40"></div>
+                        </div>
+                        <div class="text-[8px] uppercase tracking-[0.4em] dark:opacity-40 opacity-60 dark:text-white text-black whitespace-nowrap">a33</div>
+                    </div>
+                    <div class="flex flex-col items-center gap-4">
+                        <div class="relative dark:text-white text-black">
+                            <div class="w-10 h-10 rounded-full border dark:border-white/20 border-black/20"></div>
+                            <div class="absolute inset-0 flex items-center justify-center text-[8px] font-bold">NUA</div>
+                        </div>
+                        <div class="text-[8px] uppercase tracking-[0.4em] dark:opacity-40 opacity-60 dark:text-white text-black whitespace-nowrap">a34</div>
+                    </div>
+                    <div class="flex flex-col items-center gap-4">
+                        <div class="flex flex-col items-center gap-2 dark:text-white text-black">
+                            <div class="w-8 h-8 rounded-full border dark:border-white/20 border-black/20 flex items-center justify-center text-[8px]">NA</div>
+                            <div class="text-[7px] font-bold uppercase tracking-tighter text-center">Brands Made Human.</div>
+                        </div>
+                        <div class="text-[8px] uppercase tracking-[0.4em] dark:opacity-40 opacity-60 dark:text-white text-black whitespace-nowrap">a35</div>
+                    </div>
+                    <div class="flex flex-col items-center gap-4">
+                        <div class="text-xl font-heading tracking-tighter uppercase dark:text-white text-black">a36</div>
+                        <div class="flex items-center gap-2">
+                            <div class="w-2 h-2 rounded-full border dark:border-white/20 border-black/20 flex items-center justify-center">
+                                <div class="w-1 h-1 dark:bg-white/40 bg-black/40 rounded-full"></div>
+                            </div>
+                            <div class="text-[8px] uppercase tracking-[0.3em] dark:opacity-40 opacity-60 dark:text-white text-black">AGENCY</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="max-w-2xl text-center space-y-8 reveal-up" style="transition-delay:0.4s">
+                    <h2 class="text-4xl md:text-6xl font-serif italic tracking-tighter leading-tight uppercase dark:text-white text-black">
+                        We believe in the power of<br>
+                        <span class="text-accent italic">REAL VOICES</span>
+                    </h2>
+                    <p class="text-[10px] uppercase tracking-[0.4em] dark:opacity-40 opacity-60 leading-loose italic dark:text-white text-black">
+                        A voice that never fades.<br>A story that never ends.
+                    </p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="py-24 px-6 flex flex-col items-center border-t border-white/10 bg-[#0a0a0a] text-white">
+        <div class="w-full max-w-7xl grid grid-cols-1 md:grid-cols-4 gap-12 mb-24">
+            <div class="col-span-1 md:col-span-2">
+                <div class="text-4xl font-serif italic tracking-tighter uppercase mb-8">SM</div>
+                <div class="font-serif text-[10px] uppercase tracking-[0.4em] opacity-30 max-w-xs leading-loose italic text-white">SIDHU MOOSEWALA<br>LEGEND FOREVER</div>
+            </div>
+            <div class="flex flex-col gap-6">
+                <div class="text-[10px] font-bold uppercase tracking-widest opacity-40 italic text-white">COMPANY</div>
+                <div class="flex flex-col gap-4 text-xs uppercase tracking-widest font-bold italic">
+                    <div class="category-item">
+                        <button class="category-trigger hover:text-beige transition-colors text-left uppercase text-white">ABOUT</button>
+                        <div class="category-info h-0 overflow-hidden transition-all duration-500 opacity-0 text-[9px] normal-case tracking-normal mt-2 text-white/60 font-sans italic">
+                            This website is a tribute to Sidhu Moosewala — an artist whose voice, words, and presence changed an entire generation. This is not just a design project. It is an experience built to reflect his legacy, his impact, and the emotions carried through his music. Every section, every interaction, is created with respect.
+                        </div>
+                    </div>
+                    <div class="category-item">
+                        <button class="category-trigger hover:text-beige transition-colors text-left uppercase text-white">DEVELOPER</button>
+                        <div class="category-info h-0 overflow-hidden transition-all duration-500 opacity-0 text-[9px] normal-case tracking-normal mt-2 text-white/60 font-sans italic">
+                            Developed by AV WORKS LAB<br>Design. Code. Experience.<br>Built with precision and intent.
+                        </div>
+                    </div>
+                    <div class="category-item">
+                        <button class="category-trigger hover:text-beige transition-colors text-left uppercase text-white">WEBSITE</button>
+                        <div class="category-info h-0 overflow-hidden transition-all duration-500 opacity-0 text-[9px] normal-case tracking-normal mt-2 text-white/60 font-sans italic">
+                            Coming Soon
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="flex flex-col gap-6">
+                <div class="text-[10px] font-bold uppercase tracking-widest opacity-40 italic text-white">SUPPORT</div>
+                <div class="flex flex-col gap-4 text-xs uppercase tracking-widest font-bold italic">
+                    <div class="category-item">
+                        <button class="category-trigger hover:text-beige transition-colors text-left uppercase text-white">CONTACT</button>
+                        <div class="category-info h-0 overflow-hidden transition-all duration-500 opacity-0 text-[9px] normal-case tracking-normal mt-2 text-white/60 font-sans italic">
+                            No info yet.
+                        </div>
+                    </div>
+                    <div class="category-item">
+                        <button class="category-trigger hover:text-beige transition-colors text-left uppercase text-white">REPORT</button>
+                        <div class="category-info h-0 overflow-hidden transition-all duration-500 opacity-0 text-[9px] normal-case tracking-normal mt-2 text-white/60 font-sans italic">
+                            If you find any issues or have suggestions to improve the experience, feel free to share. Your feedback helps improve the project.<br>avsocial.glb@gmail.com
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="w-full max-w-7xl flex flex-col md:flex-row justify-between items-center gap-8 pt-12 border-t border-white/10 text-[8px] font-serif uppercase tracking-[0.4em] opacity-40 italic text-white">
+            <div>STABLE VERSION &middot; UPDATE - MARCH 2026</div>
+            <div class="text-2xl font-serif italic tracking-tighter opacity-100 text-white uppercase">&copy; 2026</div>
+        </div>
+    </footer>
+
+    <script>
+        // ── CONTENT PROTECTION ──────────────────────────────────
+
+        const toast = document.getElementById('protect-toast');
+        let toastTimer;
+        function showToast() {
+            clearTimeout(toastTimer);
+            toast.classList.add('show');
+            toastTimer = setTimeout(() => toast.classList.remove('show'), 1800);
+        }
+
+        // Block right-click context menu
+        document.addEventListener('contextmenu', e => {
+            e.preventDefault();
+            showToast();
+            return false;
+        });
+
+        // Block copy / cut
+        document.addEventListener('copy', e => { e.preventDefault(); showToast(); });
+        document.addEventListener('cut',  e => { e.preventDefault(); showToast(); });
+
+        // Block drag (images, text, links)
+        document.addEventListener('dragstart', e => { e.preventDefault(); showToast(); return false; });
+        document.addEventListener('drag', e => e.preventDefault());
+
+        // Block select-all and common DevTools / save shortcuts
+        document.addEventListener('keydown', e => {
+            const ctrl = e.ctrlKey || e.metaKey;
+
+            // Ctrl+A (select all), Ctrl+C (copy), Ctrl+X (cut)
+            if (ctrl && ['a','c','x'].includes(e.key.toLowerCase())) {
+                e.preventDefault(); showToast(); return false;
+            }
+            // Ctrl+S (save), Ctrl+U (view source)
+            if (ctrl && ['s','u'].includes(e.key.toLowerCase())) {
+                e.preventDefault(); showToast(); return false;
+            }
+            // Ctrl+Shift+I / Ctrl+Shift+J / Ctrl+Shift+C (DevTools)
+            if (ctrl && e.shiftKey && ['i','j','c'].includes(e.key.toLowerCase())) {
+                e.preventDefault(); return false;
+            }
+            // F12 (DevTools)
+            if (e.key === 'F12') { e.preventDefault(); return false; }
+            // Print screen
+            if (e.key === 'PrintScreen') { e.preventDefault(); showToast(); return false; }
+
+            // Keep allowed shortcuts
+            if (e.key.toLowerCase() === 'f') {
+                if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(()=>{});
+                else document.exitFullscreen();
+            }
+            if (e.key.toLowerCase() === 'r' && !ctrl) window.location.reload();
+        });
+
+        // Block text selection via mouse
+        document.addEventListener('selectstart', e => { e.preventDefault(); return false; });
+        document.addEventListener('mousedown', e => {
+            // Allow clicks on buttons/links/inputs but block text selection elsewhere
+            const tag = e.target.tagName.toLowerCase();
+            if (!['button','a','input','select','textarea'].includes(tag)) {
+                if (e.detail > 1) e.preventDefault(); // block double-click select
+            }
+        });
+
+        // ── DARK MODE ─────────────────────────────────────────
+
+        function updateGradientColors() {
+            const isDark = document.documentElement.classList.contains('dark');
+            document.documentElement.style.setProperty('--bg-mode-color', isDark ? 'rgba(0,0,0,0.85)' : 'rgba(255,255,255,0.85)');
+        }
+        new MutationObserver(updateGradientColors).observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+        updateGradientColors();
+
+        const modeToggle = document.getElementById('mode-toggle');
+        const sunIcon    = document.getElementById('sun-icon');
+        const moonIcon   = document.getElementById('moon-icon');
+        const systemIcon = document.getElementById('system-icon');
+        const html       = document.documentElement;
+
+        function updateModeIcons(mode) {
+            sunIcon.classList.add('hidden');
+            moonIcon.classList.add('hidden');
+            systemIcon.classList.add('hidden');
+            if (mode === 'light') sunIcon.classList.remove('hidden');
+            else if (mode === 'dark') moonIcon.classList.remove('hidden');
+            else systemIcon.classList.remove('hidden');
+        }
+        function applyMode(mode) {
+            if (mode === 'system') {
+                html.classList.toggle('dark', window.matchMedia('(prefers-color-scheme: dark)').matches);
+                localStorage.removeItem('theme');
+            } else {
+                html.classList.toggle('dark', mode === 'dark');
+                localStorage.theme = mode;
+            }
+            updateModeIcons(mode);
+        }
+        applyMode(localStorage.theme || 'system');
+        modeToggle.addEventListener('click', () => {
+            const cur = localStorage.theme || 'system';
+            if (cur === 'system') applyMode('light');
+            else if (cur === 'light') applyMode('dark');
+            else applyMode('system');
+        });
+
+        // ── FULLSCREEN ON FIRST CLICK ──────────────────────────
+        function triggerFirstFullscreen() {
+            if (!document.fullscreenElement)
+                document.documentElement.requestFullscreen().catch(()=>{});
+            document.removeEventListener('click', triggerFirstFullscreen);
+            document.removeEventListener('touchstart', triggerFirstFullscreen);
+        }
+        document.addEventListener('click', triggerFirstFullscreen);
+        document.addEventListener('touchstart', triggerFirstFullscreen);
+
+        // ── CUSTOM CURSOR ─────────────────────────────────────
+        const cursor   = document.getElementById('cursor');
+        const follower = document.getElementById('follower');
+        const isTouch  = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+        if (!isTouch) {
+            document.addEventListener('mousemove', e => {
+                cursor.style.transform   = `translate3d(${e.clientX - 4}px, ${e.clientY - 4}px, 0)`;
+                follower.style.transform = `translate3d(${e.clientX - 16}px, ${e.clientY - 16}px, 0)`;
+            });
+        } else {
+            cursor.style.display   = 'none';
+            follower.style.display = 'none';
+        }
+
+        // ── SCROLL REVEAL ─────────────────────────────────────
+        const observer = new IntersectionObserver(entries => {
+            entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('active'); });
+        }, { threshold: 0.1 });
+        document.querySelectorAll('.reveal-up, .circle-reveal, .section-entrance').forEach(el => observer.observe(el));
+
+        // ── FOOTER ACCORDION ──────────────────────────────────
+        document.querySelectorAll('.category-trigger').forEach(trigger => {
+            trigger.addEventListener('click', () => {
+                const info   = trigger.nextElementSibling;
+                const isOpen = !info.classList.contains('h-0');
+                document.querySelectorAll('.category-info').forEach(el => {
+                    el.classList.add('h-0', 'opacity-0');
+                    el.style.height = '0';
+                });
+                if (!isOpen) {
+                    info.classList.remove('h-0', 'opacity-0');
+                    info.style.height = info.scrollHeight + 'px';
+                }
+            });
+        });
+
+        // ── VIDEO MUTE ────────────────────────────────────────
+        const heroVideo  = document.getElementById('hero-video');
+        const muteToggle = document.getElementById('video-mute-toggle');
+        const muteIcon   = document.getElementById('mute-icon');
+        const unmuteIcon = document.getElementById('unmute-icon');
+
+        function toggleMute() {
+            if (!heroVideo) return;
+            heroVideo.muted = !heroVideo.muted;
+            muteIcon.classList.toggle('hidden', heroVideo.muted);
+            unmuteIcon.classList.toggle('hidden', !heroVideo.muted);
+        }
+        muteToggle?.addEventListener('click', toggleMute);
+        window.addEventListener('keydown', e => {
+            if (e.code === 'Space') { e.preventDefault(); toggleMute(); }
+        });
+    </script>
+</body>
+</html>
